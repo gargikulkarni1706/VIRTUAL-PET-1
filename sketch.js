@@ -1,22 +1,21 @@
-var dog, happyDog, database, foodS, foodStock, readStock
+var normalDog, happyDog, database, foodS, foodStock, dog
+
 function preload()
 {
-  dogImg1 = loadImage("images/dogImg.png") 
-  dogImg2 = loadImage("images/dogImg1.png")
+  normalDog = loadImage("images/dogImg.png") 
+  happyDog = loadImage("images/dogImg1.png")
 }
 
 function setup() {
   database = firebase.database();
+  console.log(database);
   createCanvas(500, 500);
   
-  normalDog = createSprite(width/2, height/2, 10, 10);
-  happyDog = createSprite(width/2, 100, 10, 10);
+  dog = createSprite(width/2, height/2, 10, 10);
+  
+  dog.addImage(normalDog); 
 
-  normalDog.addImage(dogImg1);
-  //happyDog.addImage(dogImg2); 
-
-  normalDog.scale = 0.2;
-  //happyDog.scale = 0.2;
+  dog.scale = 0.2;
 
   foodStock = database.ref('Food');
   foodStock.on("value", readStock);
@@ -26,24 +25,41 @@ function setup() {
 function draw() {  
   rectMode(CENTER);
   background(46, 139, 87);
-
-  if(keyDown(UP_ARROW)){
-    foodStock(-1);
-  }
   
   if(keyWentDown(UP_ARROW)){
     writeStock(foodS);
-    happyDog.addImage(dogImg2);
-    happyDog.scale = 0.2;
+    dog.addImage(happyDog);
+    dog.scale = 0.2;
   }
 
-  normalDog.display();
-  happyDog.display();
+  /*if(keyDown(UP_ARROW)){
+    writeStock(-1);
+  }*/
+
+  //normalDog.display();
+  //happyDog.display();
 
   drawSprites();
   
-  
+  textSize(25);
+  fill(51);
+  text("Food left: " +foodS, 100, 100);
+}
 
+function readStock(data){
+  foodS = data.val()
+}
+
+function writeStock(x){
+  if(x <= 0){
+    x = 0;
+  }
+  else{
+    x = x-1;
+  }
+  database.ref('/').update({
+     Food : x
+  })
 }
 
 
